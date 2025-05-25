@@ -100,7 +100,7 @@ class App{
     const self = this;
 
     loader.load(
-        'college.glb',
+        'H2.glb',
         function ( gltf ) {
             const college = gltf.scene.children[0];
             self.scene.add( college );
@@ -131,7 +131,6 @@ class App{
             college.add(obj);
 
             self.loadingBar.visible = false;
-
         
             self.setupXR();
         },
