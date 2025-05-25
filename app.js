@@ -132,22 +132,7 @@ class App{
 
             self.loadingBar.visible = false;
 
-            // ✅ ADD THIS BLOCK TO LOAD PIKACHU
-            loader.load(
-                'Pikachu.glb',
-                function (gltf) {
-                    const pikachu = gltf.scene;
-                    pikachu.position.set(0, 0, 5); // Adjust position as needed
-                    pikachu.scale.set(0.5, 0.5, 0.5); // Scale down if too big
-                    self.scene.add(pikachu);
-                },
-                undefined,
-                function (error) {
-                    console.error('Error loading Pikachu model', error);
-                }
-            );
-            // ✅ END ADDITION
-
+        
             self.setupXR();
         },
         function (xhr) {
