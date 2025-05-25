@@ -74,7 +74,7 @@ class App{
         
         const self = this;
         
-        loader.load( './assets/hdr/Sky.hdr', ( texture ) => {
+        loader.load( './assets/hdr/venice_sunset_1k.hdr', ( texture ) => {
           const envMap = pmremGenerator.fromEquirectangular( texture ).texture;
           pmremGenerator.dispose();
 
@@ -92,57 +92,67 @@ class App{
     }
     
 	loadCollege(){
-	const loader = new GLTFLoader().setPath(this.assetsPath);
-    const dracoLoader = new DRACOLoader();
-    dracoLoader.setDecoderPath('./libs/three/js/draco/');
-    loader.setDRACOLoader(dracoLoader);
-    
-    const self = this;
-
-    loader.load(
-        'H2.glb',
-        function ( gltf ) {
-            const college = gltf.scene.children[0];
-            self.scene.add( college );
-            
-            college.traverse(function (child) {
-                if (child.isMesh){
-                    if (child.name.indexOf("PROXY")!=-1){
-                        child.material.visible = false;
-                        self.proxy = child;
-                    } else if (child.material.name.indexOf('Glass')!=-1){
-                        child.material.opacity = 0.1;
-                        child.material.transparent = true;
-                    } else if (child.material.name.indexOf("SkyBox")!=-1){
-                        const mat1 = child.material;
-                        const mat2 = new THREE.MeshBasicMaterial({map: mat1.map});
-                        child.material = mat2;
-                        mat1.dispose();
-                    }
-                }
-            });
-
-            const door1 = college.getObjectByName("LobbyShop_Door__1_");
-            const door2 = college.getObjectByName("LobbyShop_Door__2_");
-            const pos = door1.position.clone().sub(door2.position).multiplyScalar(0.5).add(door2.position);
-            const obj = new THREE.Object3D();
-            obj.name = "LobbyShop";
-            obj.position.copy(pos);
-            college.add(obj);
-
-            self.loadingBar.visible = false;
         
-            self.setupXR();
-        },
-        function (xhr) {
-            self.loadingBar.progress = (xhr.loaded / xhr.total);
-        },
-        function (error) {
-            console.log('An error happened');
-        }
-    );
-}
+		const loader = new GLTFLoader( ).setPath(this.assetsPath);
+        const dracoLoader = new DRACOLoader();
+        dracoLoader.setDecoderPath( './libs/three/js/draco/' );
+        loader.setDRACOLoader( dracoLoader );
+        
+        const self = this;
+		
+		// Load a glTF resource
+		loader.load(
+			// resource URL
+			'college.glb',
+			// called when the resource is loaded
+			function ( gltf ) {
 
+                const college = gltf.scene.children[0];
+				self.scene.add( college );
+				
+				college.traverse(function (child) {
+    				if (child.isMesh){
+						if (child.name.indexOf("PROXY")!=-1){
+							child.material.visible = false;
+							self.proxy = child;
+						}else if (child.material.name.indexOf('Glass')!=-1){
+                            child.material.opacity = 0.1;
+                            child.material.transparent = true;
+                        }else if (child.material.name.indexOf("SkyBox")!=-1){
+                            const mat1 = child.material;
+                            const mat2 = new THREE.MeshBasicMaterial({map: mat1.map});
+                            child.material = mat2;
+                            mat1.dispose();
+                        }
+					}
+				});
+                       
+                const door1 = college.getObjectByName("LobbyShop_Door__1_");
+                const door2 = college.getObjectByName("LobbyShop_Door__2_");
+                const pos = door1.position.clone().sub(door2.position).multiplyScalar(0.5).add(door2.position);
+                const obj = new THREE.Object3D();
+                obj.name = "LobbyShop";
+                obj.position.copy(pos);
+                college.add( obj );
+                
+                self.loadingBar.visible = false;
+			
+                self.setupXR();
+			},
+			// called while loading is progressing
+			function ( xhr ) {
+
+				self.loadingBar.progress = (xhr.loaded / xhr.total);
+				
+			},
+			// called when loading has errors
+			function ( error ) {
+
+				console.log( 'An error happened' );
+
+			}
+		);
+	}
     
     setupXR(){
         this.renderer.xr.enabled = true;
