@@ -6,7 +6,7 @@ import { Stats } from './libs/stats.module.js';
 import { LoadingBar } from './libs/LoadingBar.js';
 import { VRButton } from './libs/VRButton.js';
 import { CanvasUI } from './libs/CanvasUI.js';
-import { GazeController } from './libs/GazeController.js'
+import { GazeController } from './libs/GazeController.js';
 import { XRControllerModelFactory } from './libs/three/jsm/XRControllerModelFactory.js';
 
 class App{
@@ -19,7 +19,7 @@ class App{
 		this.camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.01, 500 );
 		this.camera.position.set( 0, 1.6, 0 );
 		
-        this.dolly = new THREE.Object3D(  );
+        this.dolly = new THREE.Object3D();
         this.dolly.position.set(0, 0, 10);
         this.dolly.add( this.camera );
         this.dummyCam = new THREE.Object3D();
@@ -52,8 +52,6 @@ class App{
 		
 		this.loadingBar = new LoadingBar();
 		
-		this.loadAmbientSound();
-		
 		this.loadCollege();
 		
         this.immersive = false;
@@ -85,63 +83,7 @@ class App{
             console.error( 'An error occurred setting the environment');
         } );
     }
-    
-	loadAmbientSound(){
-    const listener = new THREE.AudioListener();
-    this.camera.add(listener);
 
-    this.audioContext = listener.context;
-
-    this.ambientSound = new THREE.Audio(listener);
-
-    const audioLoader = new THREE.AudioLoader();
-    audioLoader.load('./assets/audio/ambient.mp3', (buffer) => {
-        this.ambientSound.setBuffer(buffer);
-        this.ambientSound.setLoop(true);
-        this.ambientSound.setVolume(0.5);
-        this.ambientSound.play();
-    });
-
-    const config = {
-        panelSize: { height: 0.2 },
-        height: 128,
-        toggleSound: { position: { top: 20 }, height: 50, fontSize: 40, backgroundColor: "#222", fontColor: "#fff" }
-    };
-
-    const content = {
-        toggleSound: "🔈 Sound On"
-    };
-
-    this.ui = new CanvasUI(content, config);
-    this.soundMuted = false;
-
-    this.ui.updateElement("toggleSound", "🔈 Sound On");
-
-    this.ui.mesh.position.set(0, 1.5, -1.5);
-    this.ui.mesh.lookAt(this.camera.position);
-    this.scene.add(this.ui.mesh);
-
-    window.addEventListener('click', () => {
-        if (this.audioContext.state === 'suspended') {
-            this.audioContext.resume();
-        }
-    });
-
-    this.ui.update = () => {
-        this.ui.updateElement("toggleSound", this.soundMuted ? "🔇 Muted" : "🔈 Sound On");
-    };
-
-    window.addEventListener('click', (event) => {
-        const intersects = this.raycaster.intersectObject(this.ui.mesh);
-        if (intersects.length > 0) {
-            this.soundMuted = !this.soundMuted;
-            this.ambientSound.setVolume(this.soundMuted ? 0 : 0.5);
-            this.ui.update();
-        }
-    });
-}
-
-	
     resize(){
         if (!this.renderer.xr.isPresenting) {
             this.camera.aspect = window.innerWidth / window.innerHeight;
