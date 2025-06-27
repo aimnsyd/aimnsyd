@@ -80,6 +80,9 @@ class App{
         this.ui.element.addEventListener("click", () => {
             this.soundMuted = !this.soundMuted;
             if (this.ambientSound) {
+                if (!this.ambientSound.isPlaying && !this.soundMuted) {
+                    this.ambientSound.play();
+                }
                 this.ambientSound.setVolume(this.soundMuted ? 0 : 0.5);
             }
             this.ui.update();
@@ -136,12 +139,57 @@ class App{
             if (this.audioContext && this.audioContext.state === 'suspended') {
                 this.audioContext.resume().then(() => {
                     console.log("AudioContext resumed.");
+                    if (!this.ambientSound.isPlaying) {
+                        this.ambientSound.play();
+                    }
                 });
             }
         };
 
         window.addEventListener('click', resumeAudio);
         window.addEventListener('touchstart', resumeAudio);
+    }
+
+    loadCollege(){
+        const loader = new GLTFLoader().setPath(this.assetsPath);
+        const dracoLoader = new DRACOLoader();
+        dracoLoader.setDecoderPath('./libs/three/js/draco/');
+        loader.setDRACOLoader(dracoLoader);
+
+        const self = this;
+
+        loader.load(
+            'H2.glb',
+            function (gltf) {
+                const college = gltf.scene.children[0];
+                self.scene.add(college);
+
+                college.traverse(function (child) {
+                    if (child.isMesh){
+                        if (child.name.indexOf("PROXY") !== -1){
+                            child.material.visible = false;
+                            self.proxy = child;
+                        } else if (child.material.name.indexOf('Glass') !== -1){
+                            child.material.opacity = 0.1;
+                            child.material.transparent = true;
+                        } else if (child.material.name.indexOf("SkyBox") !== -1){
+                            const mat1 = child.material;
+                            const mat2 = new THREE.MeshBasicMaterial({ map: mat1.map });
+                            child.material = mat2;
+                            mat1.dispose();
+                        }
+                    }
+                });
+
+                self.loadingBar.visible = false;
+            },
+            function (xhr){
+                self.loadingBar.progress = (xhr.loaded / xhr.total);
+            },
+            function (error){
+                console.log('An error happened loading the college model.');
+            }
+        );
     }
 
     resize(){
