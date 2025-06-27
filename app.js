@@ -121,6 +121,12 @@ class App{
         this.renderer.setSize( window.innerWidth, window.innerHeight );  
     }
     
+	render(){
+        const dt = this.clock.getDelta();
+        this.stats.update();
+        this.renderer.render(this.scene, this.camera);
+    }
+	
 	loadCollege(){
         
 		const loader = new GLTFLoader( ).setPath(this.assetsPath);
