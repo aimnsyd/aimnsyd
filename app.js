@@ -53,6 +53,21 @@ class App{
         
 		this.loadingBar = new LoadingBar();
 		
+		this.audioListener = new THREE.AudioListener();
+this.camera.add(this.audioListener);
+
+const audioLoader = new THREE.AudioLoader();
+this.ambientSound = new THREE.Audio(this.audioListener);
+this.soundMuted = false;
+
+audioLoader.load('./assets/audio/ambient.mp3', (buffer) => {
+    this.ambientSound.setBuffer(buffer);
+    this.ambientSound.setLoop(true);
+    this.ambientSound.setVolume(0.5);
+    this.ambientSound.play(); // Start playing on load
+});
+
+		
 		this.loadCollege();
         
         this.immersive = false;
@@ -169,11 +184,33 @@ class App{
         
         }
 
-        function onSelectEnd( event ) {
-        
-            this.userData.selectPressed = false;
-        
+function onSelectEnd(event){
+    this.userData.selectPressed = false;
+
+    if (event.target === self.controllers[1]) { // Right-hand controller
+        if (self.ambientSound) {
+            if (self.soundMuted) {
+                self.ambientSound.setVolume(0.5);
+                self.soundMuted = false;
+                console.log("Ambient sound unmuted");
+
+                // Update UI
+                self.soundUI.updateElement('info', '🔈 Sound On');
+                self.soundUI.update();
+            } else {
+                self.ambientSound.setVolume(0);
+                self.soundMuted = true;
+                console.log("Ambient sound muted");
+
+                // Update UI
+                self.soundUI.updateElement('info', '🔇 Muted');
+                self.soundUI.update();
+            }
         }
+    }
+}
+
+
         
         function onConnected( event ){
             clearTimeout( timeoutId );
@@ -205,6 +242,21 @@ class App{
         
         this.ui = new CanvasUI( content, config );
         this.scene.add( this.ui.mesh );
+		
+		// Sound Status Panel
+const soundConfig = {
+    panelSize: { height: 0.15 },
+    height: 64,
+    info: { fontSize: 40, height: 64, backgroundColor: "#000", fontColor:"#fff", align: "center" }
+};
+const soundContent = {
+    info: "🔈 Sound On"
+};
+
+this.soundUI = new CanvasUI(soundContent, soundConfig);
+this.soundUI.mesh.position.set(0, 2.3, -1); // Adjust this to place near the user
+this.camera.add(this.soundUI.mesh); // Attach to camera to always follow view
+
         
         this.renderer.setAnimationLoop( this.render.bind(this) );
     }
