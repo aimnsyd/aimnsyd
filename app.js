@@ -84,6 +84,7 @@ class App{
         } );
     }
 
+
     loadCollege(){
         const loader = new GLTFLoader().setPath(this.assetsPath);
         const dracoLoader = new DRACOLoader();
