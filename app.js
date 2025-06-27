@@ -91,6 +91,8 @@ class App{
     const listener = new THREE.AudioListener();
     this.camera.add(listener);
 
+    this.audioContext = listener.context; // save context
+
     this.ambientSound = new THREE.Audio(listener);
 
     const audioLoader = new THREE.AudioLoader();
@@ -98,9 +100,10 @@ class App{
         this.ambientSound.setBuffer(buffer);
         this.ambientSound.setLoop(true);
         this.ambientSound.setVolume(0.5);
-        this.ambientSound.play();
+        this.ambientSound.play(); // attempt to play (may fail at first)
     });
 }
+
 
 	
     resize(){
@@ -193,6 +196,18 @@ class App{
         
         }
         
+		const resumeAudio = () => {
+    if (this.audioContext && this.audioContext.state === 'suspended') {
+        this.audioContext.resume().then(() => {
+            console.log("✅ AudioContext resumed after user gesture");
+        });
+    }
+};
+
+window.addEventListener('click', resumeAudio);
+window.addEventListener('touchstart', resumeAudio);
+
+		
         function onConnected( event ){
             clearTimeout( timeoutId );
         }
