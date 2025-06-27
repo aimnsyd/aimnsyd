@@ -335,7 +335,7 @@ class App{
                         this.boardShown = "";
                         this.ui.visible = false;
                     }
-                });
+                }
 
                 self.loadingBar.visible = false;
             },
