@@ -52,42 +52,6 @@ class App{
 		
 		this.loadingBar = new LoadingBar();
 
-        this.loadAmbientSound();
-
-        // Add Canvas UI with toggle button
-        const config = {
-            panelSize: { height: 0.3 },
-            height: 128,
-            toggleSound: { position: { top: 20 }, height: 50, fontSize: 40, backgroundColor: "#333", fontColor: "#fff" }
-        };
-
-        const content = {
-            toggleSound: "🔈 Sound On"
-        };
-
-        this.ui = new CanvasUI(content, config);
-        this.ui.mesh.position.set(0, 1.5, -2);
-        this.scene.add(this.ui.mesh);
-
-        this.soundMuted = false;
-        this.ui.updateElement("toggleSound", "🔈 Sound On");
-        this.ui.update();
-
-        this.ui.update = () => {
-            this.ui.updateElement("toggleSound", this.soundMuted ? "🔇 Muted" : "🔈 Sound On");
-        };
-
-        this.ui.element.addEventListener("click", () => {
-            this.soundMuted = !this.soundMuted;
-            if (this.ambientSound) {
-                if (!this.ambientSound.isPlaying && !this.soundMuted) {
-                    this.ambientSound.play();
-                }
-                this.ambientSound.setVolume(this.soundMuted ? 0 : 0.5);
-            }
-            this.ui.update();
-        });
-
 		this.loadCollege();
 		
         this.immersive = false;
@@ -118,36 +82,6 @@ class App{
         }, undefined, (err)=>{
             console.error( 'An error occurred setting the environment');
         } );
-    }
-
-    loadAmbientSound() {
-        const listener = new THREE.AudioListener();
-        this.camera.add(listener);
-
-        this.audioContext = listener.context;
-        this.ambientSound = new THREE.Audio(listener);
-
-        const audioLoader = new THREE.AudioLoader();
-        audioLoader.load('./assets/audio/ambient.mp3', (buffer) => {
-            this.ambientSound.setBuffer(buffer);
-            this.ambientSound.setLoop(true);
-            this.ambientSound.setVolume(0.5);
-            this.ambientSound.play();
-        });
-
-        const resumeAudio = () => {
-            if (this.audioContext && this.audioContext.state === 'suspended') {
-                this.audioContext.resume().then(() => {
-                    console.log("AudioContext resumed.");
-                    if (!this.ambientSound.isPlaying) {
-                        this.ambientSound.play();
-                    }
-                });
-            }
-        };
-
-        window.addEventListener('click', resumeAudio);
-        window.addEventListener('touchstart', resumeAudio);
     }
 
     loadCollege(){
